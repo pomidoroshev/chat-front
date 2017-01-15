@@ -104,7 +104,8 @@ class Chat extends Component {
     activeChat: 0,
     chats: [],
     messages: [],
-    message: ''
+    message: '',
+    newChatName: ''
   }
 
   componentDidMount() {
@@ -165,6 +166,25 @@ class Chat extends Component {
         'Content-Type': 'application/json',
         'X-Auth-Token': this.props.token
       }
+    }).then(resp => {
+      if (resp.status === 200) {
+        return resp.json();
+      } else if (resp.status === 401) {
+        this.props.onExpire();
+      }
+    }).then(callback);
+  }
+
+  createChat(chatName, callback) {
+    fetch(`${URL}/chat/create`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Auth-Token': this.props.token
+      },
+      body: JSON.stringify({
+        name: chatName
+      })
     }).then(resp => {
       if (resp.status === 200) {
         return resp.json();
@@ -277,11 +297,29 @@ class Chat extends Component {
     })
   }
 
+  onNewChatChange(e) {
+    this.setState(update(this.state, {
+      newChatName: {$set: e.target.value}
+    }));
+  }
+
+  onNewChatClick() {
+    this.createChat(this.state.newChatName, (resp) => {
+      this.setState(update(this.state, {
+        chats: {$push: [{
+          id: resp.id,
+          name: this.state.newChatName
+        }]},
+        newChatName: {$set: ''}
+      }))
+    });
+  }
+
   render() {
     let chatHistory;
+    let bottomBlock;
 
-    if (this.state.messages.length > 0) {
-      let bottomBlock;
+    if(this.state.activeChat > 0) {
       let chat = this.getChatById(this.state.activeChat);
 
       if (chat.user !== null) {
@@ -310,29 +348,34 @@ class Chat extends Component {
           }} onClick={this.onLoginClick.bind(this)}>Войти в чат</a>
         );
       }
-
-      chatHistory = (
-        <div className="chat-history" style={{
-            float: 'left',
-            width: 700
-          }}>
-            <button onClick={this.onLoadMoreClick.bind(this)}>
-              Загрузить ещё
-            </button>
-            <ul>
-              {this.state.messages.map((el, i) => {
-                return (
-                  <li key={i}>
-                    {el.datetime} {el.login}: {el.message}
-                  </li>
-                )
-              })}
-            </ul>
-
-            {bottomBlock}
-        </div>
+    }
+    let loadMore;
+    if (this.state.messages.length > 0) {
+      loadMore = (
+        <button onClick={this.onLoadMoreClick.bind(this)}>
+          Загрузить ещё
+        </button>
       );
     }
+    chatHistory = (
+      <div className="chat-history" style={{
+          float: 'left',
+          width: 700
+        }}>
+          {loadMore}
+          <ul>
+            {this.state.messages.map((el, i) => {
+              return (
+                <li key={i}>
+                  {el.datetime} {el.login}: {el.message}
+                </li>
+              )
+            })}
+          </ul>
+
+          {bottomBlock}
+      </div>
+    );
 
     return (
       <div>
@@ -358,6 +401,11 @@ class Chat extends Component {
               )
             })}
           </ul>
+          <input type='text'
+                 value={this.state.newChatName}
+                 onChange={this.onNewChatChange.bind(this)} />
+          <br/>
+          <button onClick={this.onNewChatClick.bind(this)}>Создать чат</button>
         </div>
         {chatHistory}
       </div>
