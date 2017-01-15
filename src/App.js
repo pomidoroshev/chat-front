@@ -6,6 +6,7 @@ import 'whatwg-fetch';
 import './App.css';
 
 const URL = 'http://127.0.0.1:8080';
+const WS_URL = 'ws://127.0.0.1:8080';
 
 
 class Authorize extends Component {
@@ -14,7 +15,7 @@ class Authorize extends Component {
     password: '',
     errorMessage: ''
   }
-
+  
   errors = {
     400: 'Пустой логин или пароль',
     418: 'Неверный пароль'
@@ -107,6 +108,8 @@ class Chat extends Component {
     message: '',
     newChatName: ''
   }
+
+  ws = null;
 
   componentDidMount() {
     this.fetchChatList(chats => {
@@ -211,12 +214,35 @@ class Chat extends Component {
   }
 
   onChatClick(chat) {
-    this.fetchChatHistory(chat.id, null, (messages => {
+    console.log(this.ws);
+    this.fetchChatHistory(chat.id, null, (messages) => {
       this.setState(update(this.state, {
         messages: {$set: messages},
         activeChat: {$set: chat.id}
-      }));
-    }));
+      }), () => {
+        if (this.ws !== null) {
+          this.ws.close();
+        }
+        this.openWebsocket(chat.id);
+      });
+    });
+  }
+
+  openWebsocket(chatId) {
+    let Socket = window.MozWebSocket || WebSocket;
+    this.ws = new Socket(`${WS_URL}/chat/${chatId}/ws`);
+
+    this.ws.onopen = () => {
+      this.ws.send('open');
+    };
+
+    this.ws.onmessage = (e) => {
+      let message = JSON.parse(e.data);
+      this.setState(update(this.state, {
+        messages: {$push: [message]}
+      }))
+    };
+
   }
 
   sendMessage(message, chatId, callback) {
@@ -242,13 +268,7 @@ class Chat extends Component {
     this.sendMessage(this.state.message, this.state.activeChat, (res) => {
       this.setState(update(this.state, {
         message: {$set: ''}
-      }), function() {
-        this.fetchChatHistory(this.state.activeChat, null, (messages) => {
-          this.setState(update(this.state, {
-            messages: {$set: messages}
-          }));
-        });
-      });
+      }));
     })
   }
 
