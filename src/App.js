@@ -133,8 +133,12 @@ class Chat extends Component {
     })
   }
 
-  fetchChatHistory(chatId, callback) {
-    fetch(`${URL}/chat/${chatId}/history`, {
+  fetchChatHistory(chatId, lastId, callback) {
+    let params = '';
+    if (lastId) {
+      params = `?last_id=${lastId}`;
+    }
+    fetch(`${URL}/chat/${chatId}/history${params}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -155,7 +159,7 @@ class Chat extends Component {
   }
 
   onChatClick(chat) {
-    this.fetchChatHistory(chat.id, (messages => {
+    this.fetchChatHistory(chat.id, null, (messages => {
       this.setState(update(this.state, {
         messages: {$set: messages},
         activeChat: {$set: chat.id}
@@ -188,11 +192,11 @@ class Chat extends Component {
       this.setState(update(this.state, {
         message: {$set: ''}
       }), function() {
-        this.fetchChatHistory(this.state.activeChat, (messages => {
+        this.fetchChatHistory(this.state.activeChat, null, (messages) => {
           this.setState(update(this.state, {
             messages: {$set: messages}
           }));
-        }));
+        });
       });
     })
   }
@@ -203,7 +207,23 @@ class Chat extends Component {
     }))
   }
   
+  onLoadMoreClick() {
+    let lastId = this.state.messages[0].id;
+    this.fetchChatHistory(this.state.activeChat, lastId, (messages) => {
+      this.setState(update(this.state, {
+        messages: {$unshift: messages}
+      }))
+    })
+  }
+
   render() {
+    let loadMore;
+
+    if (this.state.messages.length > 0) {
+      loadMore = <button onClick={this.onLoadMoreClick.bind(this)}>
+        Загрузить ещё
+      </button>;
+    }
     return (
       <div>
         <div className="chat-list" style={{
@@ -233,6 +253,7 @@ class Chat extends Component {
           float: 'left',
           width: 700
         }}>
+          {loadMore}
           <ul>
             {this.state.messages.map((el, i) => {
               return (
