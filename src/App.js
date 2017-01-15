@@ -174,6 +174,22 @@ class Chat extends Component {
     }).then(callback);
   }
 
+  logoutFromChat(chatId, callback) {
+    fetch(`${URL}/chat/${chatId}/logout`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Auth-Token': this.props.token
+      }
+    }).then(resp => {
+      if (resp.status === 200) {
+        return resp.json();
+      } else if (resp.status === 401) {
+        this.props.onExpire();
+      }
+    }).then(callback);
+  }
+
   onChatClick(chat) {
     this.fetchChatHistory(chat.id, null, (messages => {
       this.setState(update(this.state, {
@@ -251,6 +267,16 @@ class Chat extends Component {
     })
   }
 
+  onLogoutClick() {
+    this.logoutFromChat(this.state.activeChat, () => {
+      this.getChatById(this.state.activeChat)['user'] = null;
+
+      this.setState(update(this.state, {
+        chats: {$set: this.state.chats.slice(0)}
+      }))
+    })
+  }
+
   render() {
     let chatHistory;
 
@@ -265,6 +291,13 @@ class Chat extends Component {
                   onChange={this.onChangeMessage.bind(this)}
                   value={this.state.message} />
             <button onClick={this.onSendClick.bind(this)}>Отправить</button>
+            <br />
+            <a style={{
+              textDecoration: 'none',
+              borderBottom: '1px dashed',
+              cursor: 'pointer',
+              color: '#0088f5'
+            }} onClick={this.onLogoutClick.bind(this)}>Выйти из чата</a>
           </div>
         );
       } else {
