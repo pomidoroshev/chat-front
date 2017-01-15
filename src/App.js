@@ -104,6 +104,7 @@ class Chat extends Component {
     activeChat: 0,
     chats: [],
     messages: [],
+    message: ''
   }
 
   componentDidMount() {
@@ -162,6 +163,46 @@ class Chat extends Component {
     }));
   }
 
+  sendMessage(message, chatId, callback) {
+    fetch(`${URL}/chat/${chatId}/post`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Auth-Token': this.props.token
+      },
+      body: JSON.stringify({
+        id: chatId,
+        message: message,
+      })
+    }).then(resp => {
+      if (resp.status === 200) {
+        return resp.json();
+      } else if (resp.status === 401) {
+        this.props.onExpire();
+      }
+    }).then(callback);
+  }
+
+  onSendClick() {
+    this.sendMessage(this.state.message, this.state.activeChat, (res) => {
+      this.setState(update(this.state, {
+        message: {$set: ''}
+      }), function() {
+        this.fetchChatHistory(this.state.activeChat, (messages => {
+          this.setState(update(this.state, {
+            messages: {$set: messages}
+          }));
+        }));
+      });
+    })
+  }
+
+  onChangeMessage(e) {
+    this.setState(update(this.state, {
+      message: {$set: e.target.value}
+    }))
+  }
+  
   render() {
     return (
       <div>
@@ -201,8 +242,10 @@ class Chat extends Component {
               )
             })}
           </ul>
-          <input type="text" />
-          <button>Отправить</button>
+          <input type="text"
+                 onChange={this.onChangeMessage.bind(this)}
+                 value={this.state.message} />
+          <button onClick={this.onSendClick.bind(this)}>Отправить</button>
         </div>
       </div>
     );
