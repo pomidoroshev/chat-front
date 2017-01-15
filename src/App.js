@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import cookie from 'react-cookie';
 import logo from './logo.svg';
-import update from 'react-addons-update';
+import update from 'immutability-helper';
 import 'whatwg-fetch';
 import './App.css';
 
