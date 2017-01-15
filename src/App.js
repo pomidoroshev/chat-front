@@ -158,6 +158,22 @@ class Chat extends Component {
     })
   }
 
+  loginToChat(chatId, callback) {
+    fetch(`${URL}/chat/${chatId}/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Auth-Token': this.props.token
+      }
+    }).then(resp => {
+      if (resp.status === 200) {
+        return resp.json();
+      } else if (resp.status === 401) {
+        this.props.onExpire();
+      }
+    }).then(callback);
+  }
+
   onChatClick(chat) {
     this.fetchChatHistory(chat.id, null, (messages => {
       this.setState(update(this.state, {
@@ -175,8 +191,7 @@ class Chat extends Component {
         'X-Auth-Token': this.props.token
       },
       body: JSON.stringify({
-        id: chatId,
-        message: message,
+        message: message
       })
     }).then(resp => {
       if (resp.status === 200) {
@@ -216,14 +231,76 @@ class Chat extends Component {
     })
   }
 
+  getChatById(id) {
+    for (let i = 0; i < this.state.chats.length; i++) {
+      if (this.state.chats[i].id === id) {
+        return this.state.chats[i];
+      }
+    }
+
+    return null;
+  }
+
+  onLoginClick() {
+    this.loginToChat(this.state.activeChat, () => {
+      this.getChatById(this.state.activeChat)['user'] = 1;
+
+      this.setState(update(this.state, {
+        chats: {$set: this.state.chats.slice(0)}
+      }))
+    })
+  }
+
   render() {
-    let loadMore;
+    let chatHistory;
 
     if (this.state.messages.length > 0) {
-      loadMore = <button onClick={this.onLoadMoreClick.bind(this)}>
-        Загрузить ещё
-      </button>;
+      let bottomBlock;
+      let chat = this.getChatById(this.state.activeChat);
+
+      if (chat.user !== null) {
+        bottomBlock = (
+          <div>
+            <input type="text"
+                  onChange={this.onChangeMessage.bind(this)}
+                  value={this.state.message} />
+            <button onClick={this.onSendClick.bind(this)}>Отправить</button>
+          </div>
+        );
+      } else {
+        bottomBlock = (
+          <a style={{
+            textDecoration: 'none',
+            borderBottom: '1px dashed',
+            cursor: 'pointer',
+            color: '#0088f5'
+          }} onClick={this.onLoginClick.bind(this)}>Войти в чат</a>
+        );
+      }
+
+      chatHistory = (
+        <div className="chat-history" style={{
+            float: 'left',
+            width: 700
+          }}>
+            <button onClick={this.onLoadMoreClick.bind(this)}>
+              Загрузить ещё
+            </button>
+            <ul>
+              {this.state.messages.map((el, i) => {
+                return (
+                  <li key={i}>
+                    {el.datetime} {el.login}: {el.message}
+                  </li>
+                )
+              })}
+            </ul>
+
+            {bottomBlock}
+        </div>
+      );
     }
+
     return (
       <div>
         <div className="chat-list" style={{
@@ -243,31 +320,13 @@ class Chat extends Component {
                 <li key={i}
                     style={style}
                     onClick={this.onChatClick.bind(this, el)}>
-                  {el.name}
+                  {el.name} {el.user !== null ? '+' : ''}
                 </li>
               )
             })}
           </ul>
         </div>
-        <div className="chat-history" style={{
-          float: 'left',
-          width: 700
-        }}>
-          {loadMore}
-          <ul>
-            {this.state.messages.map((el, i) => {
-              return (
-                <li key={i}>
-                  {el.datetime} {el.login}: {el.message}
-                </li>
-              )
-            })}
-          </ul>
-          <input type="text"
-                 onChange={this.onChangeMessage.bind(this)}
-                 value={this.state.message} />
-          <button onClick={this.onSendClick.bind(this)}>Отправить</button>
-        </div>
+        {chatHistory}
       </div>
     );
   }
