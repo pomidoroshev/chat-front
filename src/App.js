@@ -5,8 +5,9 @@ import update from 'immutability-helper';
 import 'whatwg-fetch';
 import './App.css';
 
-const URL = 'http://127.0.0.1:8080';
-const WS_URL = 'ws://127.0.0.1:8080/ws';
+const HOSTNAME = document.location.hostname;
+const URL = `http://${HOSTNAME}/api`;
+const WS_URL = `ws://${HOSTNAME}/api/ws`;
 
 
 class Authorize extends Component {
