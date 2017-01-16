@@ -6,6 +6,11 @@
   text-align: left;
 }
 
+.auth-form {
+  margin: 16px auto;
+  width: 170px;
+}
+
 .App-logo {
   animation: App-logo-spin infinite 20s linear;
   height: 80px;
@@ -25,4 +30,49 @@
 @keyframes App-logo-spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
+}
+
+input[type=text], input[type=password] {
+  font-size: 16px;
+}
+
+button {
+  font-size: 17px;
+}
+
+.chat-list ul {
+  list-style-type: none;
+  margin: 20px 21px;
+  padding: 0;
+}
+
+.chat-list ul li {
+  cursor: pointer;
+  color: #0088f5;
+  margin-bottom: 5px;
+}
+
+.selected {
+  font-weight: bold;
+}
+
+.create-chat {
+  margin-left: 20px;
+}
+
+.chat-history {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  margin-left: 300px;
+  max-width: 700px;
+}
+
+.chat-history ul {
+  list-style-type: none;
+  margin: 10px 0;
+  padding: 0;
+}
+
+.chat-history ul li {
+  margin-bottom: 6px;
 }

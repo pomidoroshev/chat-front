@@ -73,7 +73,7 @@ class Authorize extends Component {
       error = <p>{this.state.errorMessage}</p>;
     }
     return (
-      <div>
+      <div className='auth-form'>
         {error}
 
         <label>
@@ -82,6 +82,7 @@ class Authorize extends Component {
                  value={this.state.login}
                  onChange={this.onChangeLogin.bind(this)} />
         </label>
+        <br/>
         <br/>
 
         <label>
@@ -378,10 +379,7 @@ class Chat extends Component {
       );
     }
     chatHistory = (
-      <div className="chat-history" style={{
-          float: 'left',
-          width: 700
-        }}>
+      <div className="chat-history">
           {loadMore}
           <ul>
             {this.state.messages.map((el, i) => {
@@ -405,27 +403,32 @@ class Chat extends Component {
         }}>
           <ul>
             {this.state.chats.map((el, i) => {
-              let style = {
-                cursor: 'pointer'
-              };
+              let style = {};
+              let className = '';
 
               if (el.id === this.state.activeChat) {
-                style.backgroundColor = '#ccc';
+                className = 'selected';
               }
               return (
                 <li key={i}
                     style={style}
+                    className={className}
                     onClick={this.onChatClick.bind(this, el)}>
                   {el.name} {el.user !== null ? '+' : ''}
                 </li>
               )
             })}
           </ul>
-          <input type='text'
-                 value={this.state.newChatName}
-                 onChange={this.onNewChatChange.bind(this)} />
-          <br/>
-          <button onClick={this.onNewChatClick.bind(this)}>Создать чат</button>
+          <div className='create-chat'>
+            <input type='text'
+                   value={this.state.newChatName}
+                   placeholder='Название чата'
+                   onChange={this.onNewChatChange.bind(this)} />
+            <br/>
+            <button onClick={this.onNewChatClick.bind(this)}>
+              Создать чат
+            </button>
+          </div>
         </div>
         {chatHistory}
       </div>
