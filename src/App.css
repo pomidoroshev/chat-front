@@ -40,6 +40,11 @@ button {
   font-size: 17px;
 }
 
+.chat-list {
+  float: left;
+  width: 200px;
+}
+
 .chat-list ul {
   list-style-type: none;
   margin: 20px 21px;
@@ -63,7 +68,7 @@ button {
 .chat-history {
   margin-top: 20px;
   margin-bottom: 20px;
-  margin-left: 300px;
+  margin-left: 220px;
   max-width: 700px;
 }
 
@@ -74,5 +79,17 @@ button {
 }
 
 .chat-history ul li {
-  margin-bottom: 6px;
+  margin-bottom: 12px;
+}
+
+.chat-login {
+  font-weight: bold;
+  margin-right: 5px;
+}
+
+.chat-datetime {
+  font-size: 13px;
+  display: block;
+  margin-top: 2px;
+  color: #999;
 }

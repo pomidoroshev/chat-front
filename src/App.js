@@ -385,7 +385,9 @@ class Chat extends Component {
             {this.state.messages.map((el, i) => {
               return (
                 <li key={i}>
-                  {el.datetime} {el.login}: {el.message}
+                  <span className='chat-login'>{el.login}</span>
+                  <span className='chat-message'>{el.message}</span>
+                  <span className='chat-datetime'>{el.datetime}</span>
                 </li>
               )
             })}
@@ -397,10 +399,7 @@ class Chat extends Component {
 
     return (
       <div>
-        <div className="chat-list" style={{
-          width: 300,
-          float: 'left',
-        }}>
+        <div className="chat-list">
           <ul>
             {this.state.chats.map((el, i) => {
               let style = {};
