@@ -110,6 +110,13 @@ class Chat extends Component {
     newChatName: ''
   }
 
+  actionTypes = {
+    0: 'Сообщение',
+    1: 'Создал чат',
+    2: 'Вошел в чат',
+    3: 'Вышел из чата'
+  }
+
   ws = null;
 
   componentDidMount() {
@@ -383,10 +390,18 @@ class Chat extends Component {
           {loadMore}
           <ul>
             {this.state.messages.map((el, i) => {
+              let message = <span className='chat-message'>{el.message}</span>;
+              if (el.action_type > 0) {
+                message = (
+                  <span className='chat-message chat-message-action'>
+                    {this.actionTypes[el.action_type]}
+                  </span>
+                );
+              }
               return (
                 <li key={i}>
                   <span className='chat-login'>{el.login}</span>
-                  <span className='chat-message'>{el.message}</span>
+                  {message}
                   <span className='chat-datetime'>{el.datetime}</span>
                 </li>
               )

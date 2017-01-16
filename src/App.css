@@ -87,6 +87,11 @@ button {
   margin-right: 5px;
 }
 
+.chat-message-action {
+  font-style: italic;
+  color: #b30000;
+}
+
 .chat-datetime {
   font-size: 13px;
   display: block;
