@@ -6,7 +6,7 @@ import 'whatwg-fetch';
 import './App.css';
 
 const URL = 'http://127.0.0.1:8080';
-const WS_URL = 'ws://127.0.0.1:8080';
+const WS_URL = 'ws://127.0.0.1:8080/ws';
 
 
 class Authorize extends Component {
@@ -238,7 +238,7 @@ class Chat extends Component {
 
   openWebsocket(chatId) {
     let Socket = window.MozWebSocket || WebSocket;
-    this.ws = new Socket(`${WS_URL}/chat/${chatId}/ws`);
+    this.ws = new Socket(`${WS_URL}?id=${chatId}`);
 
     this.ws.onopen = () => {
       this.ws.send('open');
